@@ -1,0 +1,16 @@
+{
+  "codeLens.enable": true,
+  "solargraph.bundlerPath": "/usr/bin/bundle",
+  "elixir.pathToElixirLS": "~/.elixir-ls/release/language_server.sh",
+  "languageserver": {
+    "terraform":{
+	"command": "terraform-lsp",
+	"filetypes": [
+	  "terraform",
+	  "tf"
+	],
+	"initializationOptions": {},
+	"settings": {}
+    }
+  }
+}
