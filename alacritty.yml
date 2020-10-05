@@ -3,6 +3,12 @@
 # Any items in the `env` entry below will be added as
 # environment variables. Some entries may override variables
 # set by alacritty itself.
+shell:
+  program: /bin/zsh
+  args:
+    - -l
+    - -c
+    - "tmux"
 env:
   # TERM variable
   #
@@ -140,7 +146,7 @@ font:
   # If the font quality on non-retina display looks bad then set
   # `use_thin_strokes` to `true` and enable font smoothing by running the
   # following command:
-  #   `defaults write -g CGFontRenderingFontSmoothinDisabled -bool NO`
+  #   `defaults write -g CGFontRenderingFontSmoothingDisabled -bool NO`
   #
   # This is a global setting and will require a log out or restart to take
   # effect.

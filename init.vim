@@ -21,6 +21,8 @@ call plug#begin()
   Plug 'mg979/vim-visual-multi', {'branch': 'master'}
   Plug 'juliosueiras/vim-terraform-completion'
   Plug 'APZelos/blamer.nvim'
+  Plug 'ekalinin/Dockerfile.vim'
+  Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
 call plug#end()
 " Plugins END
 "------------------------------------------------
@@ -76,7 +78,7 @@ set listchars=tab:»·,trail:·
 
 " let buffers be clickable
 let g:lightline#bufferline#clickable=1
-let g:lightline#bufferline#shorten_path=1
+let g:lightline#bfferline#shorten_path=1
 let g:lightline#bufferline#min_buffer_count=1
 
 " Theme END
@@ -102,6 +104,7 @@ nmap <Leader>p :Rg<CR>
 nmap <Leader>g? :GFiles?<CR>
 nmap <Leader>h :History<CR>
 nmap <Leader>n :NERDTreeToggle<CR>
+imap jj <Esc>:w<CR>a
 " Remaps END
 "------------------------------------------------
 
@@ -237,3 +240,4 @@ nnoremap <silent> <space>j  :<C-u>CocNext<CR>
 nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 " Coc END
 "------------------------------------------------
+
