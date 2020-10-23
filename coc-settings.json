@@ -4,14 +4,15 @@
   "elixir.pathToElixirLS": "~/.elixir-ls/release/language_server.sh",
   "languageserver": {
     "terraform":{
-	"command": "terraform-lsp",
-	"filetypes": [
-	  "terraform",
-	  "tf"
-	],
-	"initializationOptions": {},
-	"settings": {}
+	    "command": "terraform-lsp",
+	    "filetypes": [
+	      "terraform",
+	      "tf"
+	    ],
+	    "initializationOptions": {},
+	    "settings": {}
     }
-  }
+  },
+  "coc.preferences.formatOnSaveFiletypes": ["css", "markdown", "typescript", "javascript", "json"]
 }
 

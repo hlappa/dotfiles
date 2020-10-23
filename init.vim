@@ -1,27 +1,58 @@
 "------------------------------------------------
 " Plugins START
 call plug#begin()
+  " Git status icons
   Plug 'airblade/vim-gitgutter'
+
+  " Configure editor
   Plug 'editorconfig/editorconfig-vim'
+
+  " Tab through coc
   Plug 'ervandew/supertab'
-  Plug 'itchyny/lightline.vim'
-  Plug 'junegunn/vim-easy-align'
+
+  " Fuzzy finder
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
+
+  " Buffer line on the bottom
+  Plug 'itchyny/lightline.vim'
   Plug 'mengelbrecht/lightline-bufferline'
+
+  " Theme and coloring
   Plug 'morhetz/gruvbox'
+
+  " Code completion
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+  " Icons for different file types
   Plug 'ryanoasis/vim-devicons'
+
+  " Comment out lines
   Plug 'tpope/vim-commentary'
-  Plug 'tpope/vim-fugitive'
+
+  " NERDTree
   Plug 'preservim/nerdtree'
+
+  " Languages
   Plug 'elixir-editors/vim-elixir'
   Plug 'hashivim/vim-terraform'
+
+  " Show error hints and highlights
   Plug 'vim-syntastic/syntastic'
+
+  " Select multiple same items
   Plug 'mg979/vim-visual-multi', {'branch': 'master'}
+
+  " Terraform completion and syntax highlight
   Plug 'juliosueiras/vim-terraform-completion'
+
+  " Git blamer
   Plug 'APZelos/blamer.nvim'
+
+  " Dockerfile syntax
   Plug 'ekalinin/Dockerfile.vim'
+
+  " Markdown
   Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
 call plug#end()
 " Plugins END
@@ -41,6 +72,7 @@ set number
 set title
 set wrap
 setlocal wrap
+set encoding=UTF-8
 " Settings END
 "------------------------------------------------
 
@@ -89,8 +121,6 @@ let g:blamer_delay = 200
 
 "------------------------------------------------
 " Remaps START
-" Align GitHub-flavored Markdown tables
-au FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
 
 " Toggle between buffers
 nmap <Leader>bn :bn<CR>
@@ -173,6 +203,7 @@ let g:NERDTreeShowHidden=1
 nmap <leader>rn <Plug>(coc-rename)
 
 " Formatting selected code.
+vmap <leader>f  <Plug>(coc-format-selected)
 xmap <leader>f  <Plug>(coc-format-selected)
 nmap <leader>f  <Plug>(coc-format-selected)
 
@@ -223,6 +254,8 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+
+command! -nargs=0 Prettier :CocCommand prettier.formatFile
 
 " Add (Neo)Vim's native statusline support.
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
