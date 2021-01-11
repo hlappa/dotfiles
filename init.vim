@@ -1,5 +1,3 @@
-"------------------------------------------------
-" Plugins START
 call plug#begin()
   " Git status icons
   Plug 'airblade/vim-gitgutter'
@@ -54,12 +52,13 @@ call plug#begin()
 
   " Markdown
   Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install'  }
-call plug#end()
-" Plugins END
-"------------------------------------------------
 
-"------------------------------------------------
-" Settings START
+  " Cheat.sh integration
+  Plug 'RishabhRD/popfix'
+  Plug 'RishabhRD/nvim-cheat.sh'
+call plug#end()
+
+" Settings
 let mapleader = "\<Space>"
 filetype plugin on
 set completeopt=longest,menuone
@@ -73,13 +72,8 @@ set title
 set wrap
 setlocal wrap
 set encoding=UTF-8
-" Settings END
-"------------------------------------------------
 
-
-
-"------------------------------------------------
-" persist START
+" persist
 set undofile " Maintain undo history between sessions
 set undodir=~/.vim/undodir
 
@@ -88,18 +82,12 @@ autocmd BufReadPost *
   \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
   \ |   exe "normal! g`\""
   \ | endif
-" persist END
-"------------------------------------------------
 
-"------------------------------------------------
-" SuperTab START
+" SuperTab
 let g:SuperTabMappingForward = '<S-tab>'
 let g:SuperTabMappingBackward = '<tab>'
-" SuperTab END
-"------------------------------------------------
 
-"------------------------------------------------
-" Theme START
+" Theme
 syntax on
 colorscheme gruvbox
 set background=dark
@@ -113,38 +101,21 @@ let g:lightline#bufferline#clickable=1
 let g:lightline#bfferline#shorten_path=1
 let g:lightline#bufferline#min_buffer_count=1
 
-" Theme END
-"------------------------------------------------
-
+" Git blamer
 let g:blamer_enabled = 1
 let g:blamer_delay = 200
 
-"------------------------------------------------
-" Remaps START
-
-" Toggle between buffers
-nmap <Leader>bn :bn<CR>
-nmap <Leader>bp :bp<CR>
-nnoremap <C-p> :Rg<Cr>
-nnoremap <C-e> :Files<Cr>
-nmap <Leader>bl :Buffers<CR>
-nmap <Leader>g :GFiles<CR>
-nmap <Leader>e :Files<CR>
+" Remaps
 nmap <Leader>p :Rg<CR>
-nmap <Leader>g? :GFiles?<CR>
 nmap <Leader>h :History<CR>
 nmap <Leader>n :NERDTreeToggle<CR>
 imap jj <Esc>:w<CR>a
-" Remaps END
-"------------------------------------------------
+nmap <Leader>r :NERDTreeFocus<cr>R<c-w><c-p>
 
-"------------------------------------------------
-" Coc START
 " Give more space for displaying messages.
 set cmdheight=2
 
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
+" Reduce updatetime
 set updatetime=300
 
 " Don't pass messages to |ins-completion-menu|.
@@ -170,10 +141,6 @@ else
   imap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 endif
 
-" Use `[g` and `]g` to navigate diagnostics
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
@@ -196,16 +163,10 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Launch NERDTree on start-up
 autocmd VimEnter * NERDTree
-
 let g:NERDTreeShowHidden=1
 
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
-
-" Formatting selected code.
-vmap <leader>f  <Plug>(coc-format-selected)
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
 
 augroup mygroup
   autocmd!
@@ -215,22 +176,8 @@ augroup mygroup
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
 
-" Applying codeAction to the selected region.
-" Example: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
-
-" Remap keys for applying codeAction to the current line.
-nmap <leader>ac  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
-
-" Introduce function text object
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap if <Plug>(coc-funcobj-i)
-omap af <Plug>(coc-funcobj-a)
 
 inoremap " ""<left>
 inoremap ' ''<left>
@@ -261,16 +208,3 @@ command! -nargs=0 Prettier :CocCommand prettier.formatFile
 " NOTE: Please see `:h coc-status` for integrations with external plugins that
 " provide custom statusline: lightline.vim, vim-airline.
 set statusline^=%{coc#status()}
-
-" Mappings using CoCList:
-" Show all diagnostics.
-nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
-" Find symbol of current document.
-nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent> <space>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
-" Coc END
-"------------------------------------------------
-
