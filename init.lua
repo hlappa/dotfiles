@@ -23,6 +23,7 @@ opt.visualbell = true
 opt.inccommand = "nosplit"
 opt.background = "dark"
 opt.autoread = true
+vim.o.encoding = "utf8"
 vim.o.completeopt = "menuone,noselect"
 vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
@@ -45,9 +46,16 @@ startup(function(use)
   use "kabouzeid/nvim-lspinstall"
 
   -- autocomplete and snippets
-  use "hrsh7th/nvim-compe"
-  use "hrsh7th/vim-vsnip"
-  use "hrsh7th/vim-vsnip-integ"
+  -- Install nvim-cmp, and buffer source as a dependency
+  --use {
+  --  "hrsh7th/nvim-cmp",
+  --  requires = {
+  --    "hrsh7th/vim-vsnip",
+  --    "hrsh7th/cmp-buffer",
+  --  }
+  --}
+  
+  use "nvim-lua/completion-nvim"
 
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
@@ -68,7 +76,7 @@ startup(function(use)
   use {"npxbr/gruvbox.nvim", requires = {"rktjmp/lush.nvim"}}
 
   -- close pairs
-  use "jiangmiao/auto-pairs"
+  use "windwp/nvim-autopairs"
   use "rstacruz/vim-hyperstyle"
 
   -- Dev icons
@@ -110,67 +118,52 @@ end
 
 local lspconfig = require("lspconfig")
 
--- Neovim doesn't support snippets out of the box, so we need to mutate the
--- capabilities we send to the language server to let them know we want snippets.
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
+local on_attach = function(client, bufnr)
+  local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
 
-require "compe".setup {
-  enabled = true,
-  autocomplete = true,
-  debug = false,
-  min_length = 1,
-  preselect = "disabled",
-  throttle_time = 80,
-  source_timeout = 200,
-  incomplete_delay = 400,
-  max_abbr_width = 100,
-  max_kind_width = 100,
-  max_menu_width = 100,
-  documentation = true,
-  source = {
-    path = true,
-    buffer = true,
-    calc = true,
-    vsnip = true,
-    nvim_lsp = true,
-    nvim_lua = true,
-    spell = true,
-    tags = true,
-    treesitter = true
-  }
-}
-
-local on_attach = function(_, bufnr)
-  local function map(...)
-    vim.api.nvim_buf_set_keymap(bufnr, ...)
-  end
   local map_opts = {noremap = true, silent = true}
 
   map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<cr>", map_opts)
-  map("n", "gd", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
-  map("n", "dt", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
-  map("n", "K", "<cmd>lua vim.lsp.buf.hover()<cr>", map_opts)
-  map("n", "gD", "<cmd>lua vim.lsp.buf.implementation()<cr>", map_opts)
-  map("n", "<c-k>", "<cmd>lua vim.lsp.buf.signature_help()<cr>", map_opts)
-  map("n", "1gD", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
+  map("n", "gc", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
+  map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
+  map("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", map_opts)
+  map("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
+  map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
 
-  -- These have a different style than above because I was fiddling
-  -- around and never converted them. Instead of converting them
-  -- now, I'm leaving them as they are for this article because this is
-  -- what I actually use, and hey, it works ¯\_(ツ)_/¯.
-  vim.cmd [[imap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>']]
-  vim.cmd [[smap <expr> <C-l> vsnip#available(1) ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>']]
-
-  vim.cmd [[imap <expr> <Tab> vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>']]
-  vim.cmd [[smap <expr> <Tab> vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>']]
-  vim.cmd [[imap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>']]
-  vim.cmd [[smap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>']]
-
-  vim.cmd [[inoremap <silent><expr> <C-Space> compe#complete()]]
-  vim.cmd [[inoremap <silent><expr> <CR> compe#confirm('<CR>')]]
+  require"completion".on_attach(client)
 end
 
+local eslint = {
+  lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
+  lintStdin = true,
+  lintFormats = {"%f:%l:%c: %m"},
+  lintIgnoreExitCode = true,
+  formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename=${INPUT}",
+  formatStdin = true
+}
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+
+local function eslint_config_exists()
+  local eslintrc = vim.fn.glob(".eslintrc*", 0, 1)
+
+  if not vim.tbl_isempty(eslintrc) then
+    return true
+  end
+
+  if vim.fn.filereadable("package.json") then
+    if vim.fn.json_decode(vim.fn.readfile("package.json"))["eslintConfig"] then
+      return true
+    end
+  end
+
+  return false
+end
+
+lspconfig.tsserver.setup {
+  on_attach = on_attach
+}
 
 lspconfig.elixirls.setup({
   capabilities = capabilities,
@@ -182,6 +175,55 @@ lspconfig.elixirls.setup({
     }
   }
 })
+
+lspconfig.solargraph.setup({
+  capabilities = capabilities,
+  on_attach = on_attach,
+  settings = {
+    solargraph = {
+      diagnostics = true,
+      completion = true
+    }
+  }
+})
+
+lspconfig.html.setup{
+  capabilities = capabilities,
+  on_attach = on_attach
+}
+
+lspconfig.efm.setup {
+  on_attach = on_attach,
+  root_dir = function()
+    if not eslint_config_exists() then
+      return nil
+    end
+    return vim.fn.getcwd()
+  end,
+  settings = {
+    languages = {
+      javascript = {eslint},
+      javascriptreact = {eslint},
+      ["javascript.jsx"] = {eslint},
+      typescript = {eslint},
+      ["typescript.tsx"] = {eslint},
+      typescriptreact = {eslint}
+    }
+  },
+  filetypes = {
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescript.tsx",
+    "typescriptreact"
+  },
+}
+
+
+-- vim.api.nvim_command("autocmd BufEnter * lua require'completion'.on_attach()")
+
+require('nvim-autopairs').setup{}
 
 -- Tab through LSP
 
@@ -204,19 +246,18 @@ end
 _G.tab_complete = function()
   if vim.fn.pumvisible() == 1 then
     return t "<C-n>"
-  elseif vim.fn.call("vsnip#available", {1}) == 1 then
-    return t "<Plug>(vsnip-expand-or-jump)"
+  --elseif vim.fn.call("vsnip#available", {1}) == 1 then
+    --return t "<Plug>(vsnip-expand-or-jump)"
   elseif check_back_space() then
     return t "<Tab>"
   else
-    return vim.fn['compe#complete']()
   end
 end
 _G.s_tab_complete = function()
   if vim.fn.pumvisible() == 1 then
     return t "<C-p>"
-  elseif vim.fn.call("vsnip#jumpable", {-1}) == 1 then
-    return t "<Plug>(vsnip-jump-prev)"
+  --elseif vim.fn.call("vsnip#jumpable", {-1}) == 1 then
+    --return t "<Plug>(vsnip-jump-prev)"
   else
     -- If <S-Tab> is not working in your terminal, change it to <C-h>
     return t "<S-Tab>"
