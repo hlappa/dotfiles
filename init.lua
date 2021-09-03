@@ -1,3 +1,4 @@
+-- Basic opts
 local opt = vim.opt
 
 opt.foldmethod = "syntax"
@@ -23,16 +24,18 @@ opt.visualbell = true
 opt.inccommand = "nosplit"
 opt.background = "dark"
 opt.autoread = true
+opt.listchars = { tab = "»·", space = "·" }
 vim.o.encoding = "utf8"
 vim.o.completeopt = "menuone,noselect"
 vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
 vim.g.mapleader = " "
 
+-- Set chars to be displayed
 vim.cmd [[set listchars=tab:»·,trail:·]]
 
--- Packer stuff
 
+-- Packer stuff
 vim.cmd [[packadd packer.nvim]]
 
 local startup = require("packer").startup
@@ -45,16 +48,7 @@ startup(function(use)
   use "neovim/nvim-lspconfig"
   use "kabouzeid/nvim-lspinstall"
 
-  -- autocomplete and snippets
-  -- Install nvim-cmp, and buffer source as a dependency
-  --use {
-  --  "hrsh7th/nvim-cmp",
-  --  requires = {
-  --    "hrsh7th/vim-vsnip",
-  --    "hrsh7th/cmp-buffer",
-  --  }
-  --}
-  
+  -- Complention engine
   use "nvim-lua/completion-nvim"
 
   -- syntax highlighting
@@ -99,7 +93,6 @@ end)
 vim.cmd([[colorscheme gruvbox]])
 
 -- LSP config
-
 local function setup_servers()
   require'lspinstall'.setup()
   local servers = require'lspinstall'.installed_servers()
@@ -115,8 +108,6 @@ require'lspinstall'.post_install_hook = function ()
   setup_servers() -- reload installed servers
   vim.cmd("bufdo e") -- this triggers the FileType autocmd that starts the server
 end
-
-local lspconfig = require("lspconfig")
 
 local on_attach = function(client, bufnr)
   local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
@@ -161,7 +152,15 @@ local function eslint_config_exists()
   return false
 end
 
+local lspconfig = require("lspconfig")
+
 lspconfig.tsserver.setup {
+  on_attach = on_attach,
+  capabilities = capabilities
+}
+
+lspconfig.terraform.setup {
+  capabilities = capabilities,
   on_attach = on_attach
 }
 
@@ -220,13 +219,9 @@ lspconfig.efm.setup {
   },
 }
 
-
--- vim.api.nvim_command("autocmd BufEnter * lua require'completion'.on_attach()")
-
 require('nvim-autopairs').setup{}
 
 -- Tab through LSP
-
 local t = function(str)
   return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
@@ -271,7 +266,6 @@ vim.api.nvim_set_keymap("s", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
 
 
 -- Telescope config
-
 vim.cmd [[nnoremap <leader>f <cmd>lua require('telescope.builtin').find_files()<cr>]]
 vim.cmd [[nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>]]
 vim.cmd [[nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>]]
@@ -279,13 +273,11 @@ vim.cmd [[nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<
 
 
 -- Treesitter
-
 local ts = require "nvim-treesitter.configs"
 ts.setup {ensure_installed = "maintained", indent = {enable = true}, highlight = {enable = true}}
 
 
 -- File Explorer
-
 vim.cmd [[nnoremap <leader>n :NvimTreeToggle<CR>]]
 vim.cmd [[nnoremap <leader>r :NvimTreeRefresh<CR>]]
 
@@ -293,3 +285,5 @@ vim.cmd [[nnoremap <leader>r :NvimTreeRefresh<CR>]]
 -- Save and go back to insert mode
 vim.cmd [[imap jj <Esc>:w<CR>a]]
 
+-- Open nvim tree on startup
+vim.api.nvim_command("autocmd VimEnter * NvimTreeToggle")
