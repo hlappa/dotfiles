@@ -26,13 +26,13 @@ opt.background = "dark"
 opt.autoread = true
 opt.listchars = { tab = "»·", space = "·" }
 vim.o.encoding = "utf8"
-vim.o.completeopt = "menuone,noselect"
+vim.o.completeopt = "menuone,noinsert,noselect"
 vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
 vim.g.mapleader = " "
 
 -- Set chars to be displayed
-vim.cmd [[set listchars=tab:»·,trail:·]]
+-- vim.cmd [[set listchars=tab:»·,trail:·]]
 
 
 -- Packer stuff
@@ -50,6 +50,8 @@ startup(function(use)
 
   -- Complention engine
   use "nvim-lua/completion-nvim"
+  use 'hrsh7th/vim-vsnip'
+  use 'hrsh7th/vim-vsnip-integ'
 
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
@@ -89,6 +91,7 @@ startup(function(use)
   use "elixir-editors/vim-elixir"
 end)
 
+vim.g["completion_enable_snippet"] = "vim-vsnip"
 -- Theme
 vim.cmd([[colorscheme gruvbox]])
 
@@ -167,6 +170,7 @@ lspconfig.terraform.setup {
 lspconfig.elixirls.setup({
   capabilities = capabilities,
   on_attach = on_attach,
+  cmd = { "/home/aleksi/.local/share/nvim/lspinstall/elixir/./elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
@@ -220,6 +224,10 @@ lspconfig.efm.setup {
 }
 
 require('nvim-autopairs').setup{}
+
+
+vim.cmd [[inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"]]
+vim.cmd [[inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"]]
 
 -- Tab through LSP
 local t = function(str)
