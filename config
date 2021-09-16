@@ -187,14 +187,11 @@ bindsym $mod+Ctrl+Shift+Left resize grow width 10 px or 10 ppt
 
 bindsym $mod+r mode "resize"
 
-bindsym --release $mod+y exec --no-startup-id import -window root ~/Pictures/screenshot-`/bin/date +%Y%m%d-%H:%M:%S`.png
-
 # Set keyboard layouts
-exec "setxkbmap -layout us,fi"
-exec "setxkbmap -option 'grp:alt_shift_toggle'"
+exec "setxkbmap -option 'grp:alt_shift_toggle' -layout us,fi"
 
 # Set screens in order
-exec "xrandr --output DP-4 --auto --below DP-2"
+# exec "xrandr --output DP-4 --auto --below DP-2"
 
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
