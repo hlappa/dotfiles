@@ -142,7 +142,7 @@ end
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/home/aleksi/.local/share/nvim/lspinstall/elixir/./elixir-ls/language_server.sh" },
+  cmd = { "/home/aleksi/.elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
@@ -203,15 +203,6 @@ lspconfig.solargraph.setup({
     }
   }
 })
-
-local eslint = {
-  lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
-  lintStdin = true,
-  lintFormats = {"%f:%l:%c: %m"},
-  lintIgnoreExitCode = true,
-  formatCommand = "eslint_d --fix-to-stdout --stdin --stdin-filename=${INPUT}",
-  formatStdin = true
-}
 
 -- Setup autopairing
 require('nvim-autopairs').setup{}
