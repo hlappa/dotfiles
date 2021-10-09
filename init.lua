@@ -45,7 +45,7 @@ startup(function(use)
   use "kabouzeid/nvim-lspinstall"
 
   -- Complention engine
-  use "nvim-lua/completion-nvim"
+  use "ms-jpq/coq_nvim"
   use 'hrsh7th/vim-vsnip'
   use 'hrsh7th/vim-vsnip-integ'
 
@@ -93,11 +93,11 @@ startup(function(use)
   use "elixir-editors/vim-elixir"
 end)
 
-vim.g["completion_enable_snippet"] = "vim-vsnip"
-
 -- Theme
 vim.g["gruvbox_contrast_dark"] = "hard"
 vim.cmd([[colorscheme gruvbox]])
+
+local coq = require "coq"
 
 -- LSP config
 local on_attach = function(client, bufnr)
@@ -114,8 +114,6 @@ local on_attach = function(client, bufnr)
 
   -- format on save
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
-
-  require"completion".on_attach(client)
 end
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -131,6 +129,7 @@ local function setup_servers()
       on_attach = on_attach,
       capabilities = capabilities
     }
+    lspconfig[server].setup(coq.lsp_ensure_capabilities())
   end
 end
 
@@ -189,8 +188,6 @@ lspconfig.typescript.setup({
 
     -- format on save
     vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
-
-    require"completion".on_attach(client)
   end,
   capabilities = capabilities,
   root_dir = function() return vim.loop.cwd() end
@@ -203,6 +200,19 @@ lspconfig.solargraph.setup({
     solargraph = {
       diagnostics = true,
       completion = true
+    }
+  },
+  root_dir = function() return vim.loop.cwd() end
+})
+
+lspconfig.lua.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { 'vim' }
+      }
     }
   },
   root_dir = function() return vim.loop.cwd() end
@@ -241,3 +251,6 @@ vim.cmd [[imap jj <Esc>:w<CR>a]]
 
 -- Open nvim tree on startup
 vim.api.nvim_command("autocmd VimEnter * NvimTreeToggle")
+
+-- Start COQ
+vim.cmd('COQnow -s')
