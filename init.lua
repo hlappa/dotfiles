@@ -67,6 +67,9 @@ startup(function(use)
   -- Git marks
   use "airblade/vim-gitgutter"
 
+  -- Git plugin
+  use "tpope/vim-fugitive"
+
   -- Status bar
   use "itchyny/lightline.vim"
 
@@ -77,12 +80,12 @@ startup(function(use)
   use "windwp/nvim-autopairs"
   use "rstacruz/vim-hyperstyle"
 
-  -- Dev icons
-  use "kyazdani42/nvim-web-devicons"
+  use {
+    'kyazdani42/nvim-tree.lua',
+    requires = 'kyazdani42/nvim-web-devicons',
+    config = function() require'nvim-tree'.setup {} end
+  }
 
-  -- File Explorer
-  use "kyazdani42/nvim-tree.lua"
-  
   -- Git blamer
   use "APZelos/blamer.nvim"
 
@@ -201,7 +204,8 @@ lspconfig.solargraph.setup({
       diagnostics = true,
       completion = true
     }
-  }
+  },
+  root_dir = function() return vim.loop.cwd() end
 })
 
 -- Setup autopairing
@@ -226,8 +230,10 @@ ts.setup {
 }
 
 -- File Explorer
-vim.cmd [[nnoremap <leader>n :NvimTreeToggle<CR>]]
+-- vim.cmd [[nnoremap <leader>n :NvimTreeToggle<CR>]]
 vim.cmd [[nnoremap <leader>r :NvimTreeRefresh<CR>]]
+
+vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 
 
 -- Save and go back to insert mode
