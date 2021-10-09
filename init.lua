@@ -46,8 +46,7 @@ startup(function(use)
 
   -- Complention engine
   use "ms-jpq/coq_nvim"
-  use 'hrsh7th/vim-vsnip'
-  use 'hrsh7th/vim-vsnip-integ'
+  use "ms-jpq/coq.artifacts"
 
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
