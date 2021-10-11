@@ -152,10 +152,6 @@ lspconfig.elixirls.setup({
   }
 })
 
--- Custom on-attach for typescript since we also need eslint, prettier along with tsserver
-require("null-ls").config {}
-lspconfig["null-ls"].setup {}
-
 lspconfig.typescript.setup({
   on_attach = function(client, bufnr) 
     local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
@@ -169,21 +165,8 @@ lspconfig.typescript.setup({
     map("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
     map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
 
-    local ts_utils = require("nvim-lsp-ts-utils")
-
     -- disable tsserver formatting
     client.resolved_capabilities.document_formatting = false
-
-    ts_utils.setup {
-      enable_import_on_completion = true,
-      eslint_bin = "eslint_d",
-      eslint_enable_diagnostics = true,
-      enable_formatting = true,
-      formatter = "prettier",
-      formatter_opts = {},
-    }
-
-    ts_utils.setup_client(client)
 
     -- format on save
     vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
@@ -204,25 +187,115 @@ lspconfig.solargraph.setup({
   root_dir = function() return vim.loop.cwd() end
 })
 
-lspconfig.lua.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
+local eslint = {
+  lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
+  lintStdin = true,
+  lintFormats = {"%f:%l:%c: %m"},
+  lintIgnoreExitCode = true,
+  formatCommand = "eslint_d --stdin --fix-to-stdout --stdin-filename=${INPUT}",
+  formatStdin = true
+}
+
+local prettier = {
+  formatCommand = 'prettier --stdin-filepath ${INPUT}',
+  formatStdin = true
+}
+
+local function eslint_config_exists()
+  local eslintrc = vim.fn.glob(".eslintrc*", 0, 1)
+
+  if not vim.tbl_isempty(eslintrc) then
+    return true
+  end
+
+  if vim.fn.filereadable("package.json") then
+    if vim.fn.json_decode(vim.fn.readfile("package.json"))["eslintConfig"] then
+      return true
+    end
+  end
+
+  return false
+end
+
+lspconfig.efm.setup {
+  on_attach = function(client)
+    client.resolved_capabilities.document_formatting = true
+    client.resolved_capabilities.goto_definition = false
+    on_attach(client)
+  end,
+  init_options = {
+    documentFormatting = true,
+    document_formatting = true
+  },
+  root_dir = function()
+    if not eslint_config_exists() then
+      return nil
+    end
+    return vim.fn.getcwd()
+  end,
   settings = {
-    Lua = {
-      diagnostics = {
-        globals = { 'vim' }
-      }
+    languages = {
+      javascript = {eslint},
+      javascriptreact = {eslint},
+      json = {prettier},
+      scss = {prettier},
+      css = {prettier},
+      yaml = {prettier},
+      html = {prettier},
+      ["javascript.jsx"] = {eslint},
+      typescript = {eslint},
+      ["typescript.tsx"] = {eslint},
+      typescriptreact = {eslint}
     }
   },
-  root_dir = function() return vim.loop.cwd() end
-})
+  cmd = { "/home/aleksi/go/bin/efm-langserver" },
+  filetypes = {
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescript.tsx",
+    "typescriptreact"
+  },
+}
 
 -- Setup autopairing
-require('nvim-autopairs').setup{}
+local remap = vim.api.nvim_set_keymap
+local npairs = require('nvim-autopairs')
+
+npairs.setup({ map_bs = false })
+
+vim.g.coq_settings = { keymap = { recommended = false } }
+
+_G.MUtils= {}
+
+MUtils.CR = function()
+  if vim.fn.pumvisible() ~= 0 then
+    if vim.fn.complete_info({ 'selected' }).selected ~= -1 then
+      return npairs.esc('<c-y>')
+    else
+      return npairs.esc('<c-e>') .. npairs.autopairs_cr()
+    end
+  else
+    return npairs.autopairs_cr()
+  end
+end
+remap('i', '<cr>', 'v:lua.MUtils.CR()', { expr = true, noremap = true })
+
+MUtils.BS = function()
+  if vim.fn.pumvisible() ~= 0 and vim.fn.complete_info({ 'mode' }).mode == 'eval' then
+    return npairs.esc('<c-e>') .. npairs.autopairs_bs()
+  else
+    return npairs.autopairs_bs()
+  end
+end
+remap('i', '<bs>', 'v:lua.MUtils.BS()', { expr = true, noremap = true })
 
 -- Tab through completion
-vim.cmd [[inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"]]
-vim.cmd [[inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"]]
+remap('i', '<esc>', [[pumvisible() ? "<c-e><esc>" : "<esc>"]], { expr = true, noremap = true })
+remap('i', '<c-c>', [[pumvisible() ? "<c-e><c-c>" : "<c-c>"]], { expr = true, noremap = true })
+remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap = true })
+remap('i', '<s-tab>', [[pumvisible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
 
 -- Telescope config
 vim.cmd [[nnoremap <leader>f <cmd>lua require('telescope.builtin').find_files()<cr>]]
