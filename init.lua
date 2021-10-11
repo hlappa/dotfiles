@@ -29,6 +29,7 @@ vim.o.encoding = "utf-8"
 vim.o.completeopt = "menuone,noinsert,noselect"
 vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
+vim.g.glow_binary_path = vim.env.HOME .. "/bin"
 vim.g.mapleader = " "
 
 -- Packer stuff
@@ -51,12 +52,6 @@ startup(function(use)
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
 
-  -- Eslint for TS, JS etc
-  use {
-    "jose-elias-alvarez/nvim-lsp-ts-utils",
-    requires = {{'nvim-lua/plenary.nvim'}, {"jose-elias-alvarez/null-ls.nvim"}}
-  }
-
   -- file search
   use {
     'nvim-telescope/telescope.nvim',
@@ -70,23 +65,35 @@ startup(function(use)
   use "tpope/vim-fugitive"
 
   -- Status bar
-  use "itchyny/lightline.vim"
+  use "hoob3rt/lualine.nvim"
 
   -- Theme
   use {"npxbr/gruvbox.nvim", requires = {"rktjmp/lush.nvim"}}
+
+  -- Preview Markdown files
+  use "ellisonleao/glow.nvim"
 
   -- close pairs
   use "windwp/nvim-autopairs"
   use "rstacruz/vim-hyperstyle"
 
+  -- File explorer
   use {
     'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
     config = function() require'nvim-tree'.setup {} end
   }
 
-  -- Git blamer
-  use "APZelos/blamer.nvim"
+  -- Commenter
+  use {
+    'numToStr/Comment.nvim',
+    config = function()
+        require('Comment').setup()
+    end
+  }
+
+  -- Git blame
+  use "f-person/git-blame.nvim"
 
   -- Elixir Language support
   use "elixir-editors/vim-elixir"
@@ -105,7 +112,7 @@ local on_attach = function(client, bufnr)
   local map_opts = {noremap = true, silent = true}
 
   map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<cr>", map_opts)
-  map("n", "gc", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
+  map("n", "ge", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
   map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
   map("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", map_opts)
   map("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
@@ -158,8 +165,8 @@ lspconfig.typescript.setup({
 
     local map_opts = {noremap = true, silent = true}
 
-    map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<cr>", map_opts)
-    map("n", "gc", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
+    map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<CR>", map_opts)
+    map("n", "ge", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
     map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
     map("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", map_opts)
     map("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
@@ -311,15 +318,31 @@ ts.setup {
   highlight = {enable = true}
 }
 
--- File Explorer
--- vim.cmd [[nnoremap <leader>n :NvimTreeToggle<CR>]]
-vim.cmd [[nnoremap <leader>r :NvimTreeRefresh<CR>]]
+-- Lualine
+require('lualine').setup({
+  options = {
+    theme = 'gruvbox'
+  },
+  sections = {
+    lualine_c = {
+      {
+        'filename',
+        filestatus = true,
+        path = 2,
+      }
+    }
+  }
+})
 
+-- File Explorer
+vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeRefresh<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 
+-- Markdown preview shortcut
+vim.api.nvim_set_keymap('n', '<leader>p', ':Glow<CR>', { noremap = true, silent = true })
 
 -- Save and go back to insert mode
-vim.cmd [[imap jj <Esc>:w<CR>a]]
+vim.api.nvim_set_keymap('i', 'jj', "<Esc>:w<CR>a", {})
 
 -- Open nvim tree on startup
 vim.api.nvim_command("autocmd VimEnter * NvimTreeToggle")
