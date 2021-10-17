@@ -335,7 +335,7 @@ require('lualine').setup({
 })
 
 -- File Explorer
-vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeRefresh<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>r', ':NvimTreeRefresh<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
 
 -- Markdown preview shortcut
