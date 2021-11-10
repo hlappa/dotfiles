@@ -26,7 +26,7 @@ opt.background = "dark"
 opt.autoread = true
 opt.listchars = { tab = '»»', trail = '·' }
 vim.o.encoding = "utf-8"
-vim.o.completeopt = "menuone,noinsert,noselect"
+vim.o.completeopt = "menu,menuone,noselect"
 vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
 vim.g.glow_binary_path = vim.env.HOME .. "/bin"
@@ -46,8 +46,15 @@ startup(function(use)
   use "kabouzeid/nvim-lspinstall"
 
   -- Complention engine
-  use "ms-jpq/coq_nvim"
-  use "ms-jpq/coq.artifacts"
+  use 'hrsh7th/cmp-nvim-lsp'
+  use 'hrsh7th/cmp-buffer'
+  use 'hrsh7th/cmp-path'
+  use 'hrsh7th/cmp-cmdline'
+  use 'hrsh7th/nvim-cmp'
+
+  -- Snippets
+  use 'hrsh7th/cmp-vsnip'
+  use 'hrsh7th/vim-vsnip'
 
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
@@ -84,6 +91,19 @@ startup(function(use)
     config = function() require'nvim-tree'.setup {} end
   }
 
+  -- Lua
+  use {
+    "folke/trouble.nvim",
+    requires = "kyazdani42/nvim-web-devicons",
+    config = function()
+      require("trouble").setup {
+        -- your configuration comes here
+        -- or leave it empty to use the default settings
+        -- refer to the configuration section below
+      }
+    end
+  }
+
   -- Commenter
   use {
     'numToStr/Comment.nvim',
@@ -103,8 +123,6 @@ end)
 vim.g["gruvbox_contrast_dark"] = "hard"
 vim.cmd([[colorscheme gruvbox]])
 
-local coq = require "coq"
-
 -- LSP config
 local on_attach = function(client, bufnr)
   local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
@@ -122,9 +140,53 @@ local on_attach = function(client, bufnr)
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
 end
 
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.completion.completionItem.snippetSupport = true
+local cmp = require'cmp'
 
+cmp.setup({
+  snippet = {
+    expand = function(args)
+      vim.fn["vsnip#anonymous"](args.body)
+    end,
+  },
+  mapping = {
+    ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+    ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+    ['<Tab>'] = cmp.mapping(cmp.mapping.select_next_item(), { 'i', 's' }),
+    ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+    ['<C-e>'] = cmp.mapping({
+      i = cmp.mapping.abort(),
+      c = cmp.mapping.close(),
+    }),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+  },
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    { name = 'vsnip' },
+  }, {
+    { name = 'buffer' },
+  })
+})
+
+-- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline('/', {
+  sources = {
+    { name = 'buffer' }
+  }
+})
+
+-- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+cmp.setup.cmdline(':', {
+  sources = cmp.config.sources({
+    { name = 'path' }
+  }, {
+    { name = 'cmdline' }
+  })
+})
+
+
+-- Setup lspconfig.
+local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
 local lspconfig = require("lspconfig")
 
 local function setup_servers()
@@ -135,7 +197,6 @@ local function setup_servers()
       on_attach = on_attach,
       capabilities = capabilities
     }
-    lspconfig[server].setup(coq.lsp_ensure_capabilities())
   end
 end
 
@@ -150,7 +211,7 @@ end
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/home/aleksi/.elixir-ls/language_server.sh" },
+  cmd = { "/home/aleksi/.elixir-ls/release/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
@@ -255,7 +316,6 @@ lspconfig.efm.setup {
       typescriptreact = {eslint}
     }
   },
-  cmd = { "/home/aleksi/go/bin/efm-langserver" },
   filetypes = {
     "javascript",
     "javascriptreact",
@@ -271,8 +331,6 @@ local remap = vim.api.nvim_set_keymap
 local npairs = require('nvim-autopairs')
 
 npairs.setup({ map_bs = false })
-
-vim.g.coq_settings = { keymap = { recommended = false } }
 
 _G.MUtils= {}
 
@@ -305,7 +363,7 @@ remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap
 remap('i', '<s-tab>', [[pumvisible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
 
 -- Telescope config
-vim.cmd [[nnoremap <leader>f <cmd>lua require('telescope.builtin').find_files()<cr>]]
+vim.cmd [[nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>]]
 vim.cmd [[nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>]]
 vim.cmd [[nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>]]
 vim.cmd [[nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>]]
@@ -341,11 +399,11 @@ vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = tru
 -- Markdown preview shortcut
 vim.api.nvim_set_keymap('n', '<leader>p', ':Glow<CR>', { noremap = true, silent = true })
 
+-- Open Trouble
+vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>", { silent = true, noremap = true })
+
 -- Save and go back to insert mode
 vim.api.nvim_set_keymap('i', 'jj', "<Esc>:w<CR>a", {})
 
 -- Open nvim tree on startup
 vim.api.nvim_command("autocmd VimEnter * NvimTreeToggle")
-
--- Start COQ
-vim.cmd('COQnow -s')
