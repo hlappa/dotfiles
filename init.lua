@@ -114,9 +114,6 @@ startup(function(use)
 
   -- Git blame
   use "f-person/git-blame.nvim"
-
-  -- Elixir Language support
-  use "elixir-editors/vim-elixir"
 end)
 
 -- Theme
@@ -137,7 +134,7 @@ local on_attach = function(client, bufnr)
   map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
 
   -- format on save
-  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
+  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 400)")
 end
 
 local cmp = require'cmp'
@@ -211,7 +208,7 @@ end
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/home/aleksi/.elixir-ls/release/language_server.sh" },
+  cmd = { "/Users/aleksiholappa/.elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
@@ -235,9 +232,6 @@ lspconfig.typescript.setup({
 
     -- disable tsserver formatting
     client.resolved_capabilities.document_formatting = false
-
-    -- format on save
-    vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting()")
   end,
   capabilities = capabilities,
   root_dir = function() return vim.loop.cwd() end
