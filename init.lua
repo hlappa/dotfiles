@@ -88,7 +88,9 @@ startup(function(use)
   use {
     'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
-    config = function() require'nvim-tree'.setup {} end
+    config = function() require'nvim-tree'.setup {
+      
+    } end
   }
 
   -- Lua
@@ -137,7 +139,36 @@ local on_attach = function(client, bufnr)
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 400)")
 end
 
+-- Setup CPM
 local cmp = require'cmp'
+
+local kind_icons = {
+  Text = "",
+  Method = "",
+  Function = "",
+  Constructor = "",
+  Field = "",
+  Variable = "",
+  Class = "ﴯ",
+  Interface = "",
+  Module = "",
+  Property = "ﰠ",
+  Unit = "",
+  Value = "",
+  Enum = "",
+  Keyword = "",
+  Snippet = "",
+  Color = "",
+  File = "",
+  Reference = "",
+  Folder = "",
+  EnumMember = "",
+  Constant = "",
+  Struct = "",
+  Event = "",
+  Operator = "",
+  TypeParameter = ""
+}
 
 cmp.setup({
   snippet = {
@@ -162,7 +193,19 @@ cmp.setup({
     { name = 'vsnip' },
   }, {
     { name = 'buffer' },
-  })
+  }),
+  formatting = {
+    format = function(entry, vim_item)
+      vim_item.kind = string.format('%s %s', kind_icons[vim_item.kind], vim_item.kind)
+      vim_item.menu = ({
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        luasnip = "[LuaSnip]",
+        nvim_lua = "[Lua]",
+      })[entry.source.name]
+      return vim_item
+    end
+  }
 })
 
 -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
@@ -189,7 +232,7 @@ local lspconfig = require("lspconfig")
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/Users/aleksiholappa/.elixir-ls/language_server.sh" },
+  cmd = { "/home/aleksi/.elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
