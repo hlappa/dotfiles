@@ -198,7 +198,7 @@ lspconfig.elixirls.setup({
   }
 })
 
-lspconfig.typescript.setup({
+lspconfig.tsserver.setup({
   on_attach = function(client, bufnr) 
     local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
 
