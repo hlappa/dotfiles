@@ -43,7 +43,7 @@ startup(function(use)
 
   -- language server configurations
   use "neovim/nvim-lspconfig"
-  use "kabouzeid/nvim-lspinstall"
+  use 'williamboman/nvim-lsp-installer'
 
   -- Complention engine
   use 'hrsh7th/cmp-nvim-lsp'
@@ -185,25 +185,6 @@ cmp.setup.cmdline(':', {
 -- Setup lspconfig.
 local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
 local lspconfig = require("lspconfig")
-
-local function setup_servers()
-  require'lspinstall'.setup()
-  local servers = require'lspinstall'.installed_servers()
-  for _, server in pairs(servers) do
-    lspconfig[server].setup{
-      on_attach = on_attach,
-      capabilities = capabilities
-    }
-  end
-end
-
-setup_servers()
-
--- Automatically reload after `:LspInstall <server>` so we don't have to restart neovim
-require'lspinstall'.post_install_hook = function ()
-  setup_servers() -- reload installed servers
-  vim.cmd("bufdo e") -- this triggers the FileType autocmd that starts the server
-end
 
 lspconfig.elixirls.setup({
   on_attach = on_attach,
@@ -383,7 +364,7 @@ require('lualine').setup({
         path = 2,
       }
     }
-  }
+}
 })
 
 -- File Explorer
