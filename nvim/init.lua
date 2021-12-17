@@ -65,17 +65,18 @@ startup(function(use)
     requires = {{'nvim-lua/popup.nvim'}, {'nvim-lua/plenary.nvim'}}
   }
 
-  -- Git marks
-  use "airblade/vim-gitgutter"
-
-  -- Git plugin
-  use "tpope/vim-fugitive"
+  -- Git
+  use {
+    'lewis6991/gitsigns.nvim',
+    requires = 'nvim-lua/plenary.nvim',
+  }
 
   -- Status bar
   use "hoob3rt/lualine.nvim"
 
   -- Theme
   use {"npxbr/gruvbox.nvim", requires = {"rktjmp/lush.nvim"}}
+  use "xiyaowong/nvim-transparent"
 
   -- Preview Markdown files
   use "ellisonleao/glow.nvim"
@@ -88,22 +89,16 @@ startup(function(use)
   use {
     'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
-    config = function() require'nvim-tree'.setup {
-      
-    } end
+    config = function() require'nvim-tree'.setup {} end
   }
 
-  -- Lua
+  use "mg979/vim-visual-multi"
+
+  -- Trouble window
   use {
     "folke/trouble.nvim",
     requires = "kyazdani42/nvim-web-devicons",
-    config = function()
-      require("trouble").setup {
-        -- your configuration comes here
-        -- or leave it empty to use the default settings
-        -- refer to the configuration section below
-      }
-    end
+    config = function() require("trouble").setup {} end
   }
 
   -- Commenter
@@ -113,9 +108,6 @@ startup(function(use)
         require('Comment').setup()
     end
   }
-
-  -- Git blame
-  use "f-person/git-blame.nvim"
 end)
 
 -- Theme
@@ -169,6 +161,22 @@ local kind_icons = {
   Operator = "",
   TypeParameter = ""
 }
+
+require("transparent").setup({
+  enable = true, -- boolean: enable transparent
+  extra_groups = { -- table/string: additional groups that should be clear
+    -- In particular, when you set it to 'all', that means all avaliable groups
+
+    -- example of akinsho/nvim-bufferline.lua
+    "BufferLineTabClose",
+    "BufferlineBufferSelected",
+    "BufferLineFill",
+    "BufferLineBackground",
+    "BufferLineSeparator",
+    "BufferLineIndicatorSelected",
+  },
+  exclude = {}, -- table: groups you don't want to clear
+})
 
 cmp.setup({
   snippet = {
