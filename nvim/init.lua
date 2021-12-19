@@ -59,8 +59,6 @@ startup(function(use)
   use 'hrsh7th/vim-vsnip-integ'
   use 'hrsh7th/cmp-vsnip'
   use 'hrsh7th/vim-vsnip'
-  --use 'SirVer/ultisnips'
-  --use 'quangnguyen30192/cmp-nvim-ultisnips'
 
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
