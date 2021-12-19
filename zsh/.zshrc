@@ -32,7 +32,7 @@ source $ZSH/oh-my-zsh.sh
 
 . $HOME/.asdf/asdf.sh
 
-PATH=$PATH:$HOME/.local/bin
+PATH=$PATH:$HOME/.local/bin:$HOME/go/bin
 
 # Aliases
 alias zshconfig="nvim ~/.zshrc"
@@ -42,4 +42,4 @@ alias n="nvim"
 alias shd="shutdown -h now"
 alias up="docker-compose up"
 
-tmux -c -l
+tmux -l
