@@ -45,6 +45,8 @@ startup(function(use)
   -- language server configurations
   use "neovim/nvim-lspconfig"
   use 'williamboman/nvim-lsp-installer'
+  use "ray-x/lsp_signature.nvim"
+
 
   -- Completion engine
   use 'hrsh7th/cmp-nvim-lsp'
@@ -134,6 +136,8 @@ local on_attach = function(client, bufnr)
   -- format on save
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 300)")
 end
+
+require "lsp_signature".setup()
 
 -- Setup transparency
 require("transparent").setup({
