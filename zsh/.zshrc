@@ -41,5 +41,6 @@ alias ls="ls -al"
 alias n="nvim"
 alias shd="shutdown -h now"
 alias up="docker-compose up"
+alias ws="web_search google"
 
 tmux -l

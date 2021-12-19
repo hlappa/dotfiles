@@ -31,6 +31,7 @@ vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
 vim.g.glow_binary_path = vim.env.HOME .. "/bin"
 vim.g.mapleader = " "
+vim.wo.relativenumber = true
 
 -- Packer stuff
 vim.cmd [[packadd packer.nvim]]
@@ -45,7 +46,7 @@ startup(function(use)
   use "neovim/nvim-lspconfig"
   use 'williamboman/nvim-lsp-installer'
 
-  -- Complention engine
+  -- Completion engine
   use 'hrsh7th/cmp-nvim-lsp'
   use 'hrsh7th/cmp-buffer'
   use 'hrsh7th/cmp-path'
@@ -53,8 +54,13 @@ startup(function(use)
   use 'hrsh7th/nvim-cmp'
 
   -- Snippets
+  use 'honza/vim-snippets'
+  use 'rafamadriz/friendly-snippets'
+  use 'hrsh7th/vim-vsnip-integ'
   use 'hrsh7th/cmp-vsnip'
   use 'hrsh7th/vim-vsnip'
+  --use 'SirVer/ultisnips'
+  --use 'quangnguyen30192/cmp-nvim-ultisnips'
 
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
@@ -128,8 +134,25 @@ local on_attach = function(client, bufnr)
   map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
 
   -- format on save
-  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 400)")
+  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 300)")
 end
+
+-- Setup transparency
+require("transparent").setup({
+  enable = true, -- boolean: enable transparent
+  extra_groups = { -- table/string: additional groups that should be clear
+    -- In particular, when you set it to 'all', that means all avaliable groups
+
+    -- example of akinsho/nvim-bufferline.lua
+    "BufferLineTabClose",
+    "BufferlineBufferSelected",
+    "BufferLineFill",
+    "BufferLineBackground",
+    "BufferLineSeparator",
+    "BufferLineIndicatorSelected",
+  },
+  exclude = {}, -- table: groups you don't want to clear
+})
 
 -- Setup CPM
 local cmp = require'cmp'
@@ -162,22 +185,6 @@ local kind_icons = {
   TypeParameter = ""
 }
 
-require("transparent").setup({
-  enable = true, -- boolean: enable transparent
-  extra_groups = { -- table/string: additional groups that should be clear
-    -- In particular, when you set it to 'all', that means all avaliable groups
-
-    -- example of akinsho/nvim-bufferline.lua
-    "BufferLineTabClose",
-    "BufferlineBufferSelected",
-    "BufferLineFill",
-    "BufferLineBackground",
-    "BufferLineSeparator",
-    "BufferLineIndicatorSelected",
-  },
-  exclude = {}, -- table: groups you don't want to clear
-})
-
 cmp.setup({
   snippet = {
     expand = function(args)
@@ -208,8 +215,8 @@ cmp.setup({
       vim_item.menu = ({
         buffer = "[Buffer]",
         nvim_lsp = "[LSP]",
-        luasnip = "[LuaSnip]",
         nvim_lua = "[Lua]",
+        vsnip = "[VSnip]"
       })[entry.source.name]
       return vim_item
     end
@@ -266,7 +273,13 @@ lspconfig.tsserver.setup({
     client.resolved_capabilities.document_formatting = false
   end,
   capabilities = capabilities,
-  root_dir = function() return vim.loop.cwd() end
+  root_dir = function() return vim.loop.cwd() end,
+  init_options = {
+    preferences = {
+      includeCompletionsWithSnippetText = true,
+      includeCompletionsForImportStatements = true,
+    }
+  }
 })
 
 lspconfig.solargraph.setup({
@@ -430,6 +443,9 @@ vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>", { silent = true, 
 
 -- Save and go back to insert mode
 vim.api.nvim_set_keymap('i', 'jj', "<Esc>:w<CR>a", {})
+
+-- Go to normal mode
+vim.api.nvim_set_keymap('i', 'jk', "<Esc>", {})
 
 -- Open nvim tree on startup
 vim.api.nvim_command("autocmd VimEnter * NvimTreeToggle")
