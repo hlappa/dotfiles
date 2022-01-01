@@ -65,6 +65,9 @@ startup(function(use)
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
 
+  -- Move code blocks or row
+  use "zirrostig/vim-schlepp"
+
   -- file search
   use {
     'nvim-telescope/telescope.nvim',
@@ -436,6 +439,12 @@ require('lualine').setup({
     }
 }
 })
+
+-- Schlepp mappings
+vim.cmd [[vmap <unique> <up> <Plug>SchleppUp]]
+vim.cmd [[vmap <unique> <down>  <Plug>SchleppDown]]
+vim.cmd [[vmap <unique> <left>  <Plug>SchleppLeft]]
+vim.cmd [[vmap <unique> <right> <Plug>SchleppRight]]
 
 -- File Explorer
 vim.api.nvim_set_keymap('n', '<Leader>r', ':NvimTreeRefresh<CR>', { noremap = true, silent = true })
