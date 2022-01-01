@@ -114,6 +114,9 @@ startup(function(use)
         require('Comment').setup()
     end
   }
+
+  -- Elixir language support since treesitter for elixir is broken
+  use "elixir-editors/vim-elixir"
 end)
 
 -- Theme
@@ -134,7 +137,7 @@ local on_attach = function(client, bufnr)
   map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
 
   -- format on save
-  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 300)")
+  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 400)")
 end
 
 require "lsp_signature".setup()
@@ -146,12 +149,12 @@ require("transparent").setup({
     -- In particular, when you set it to 'all', that means all avaliable groups
 
     -- example of akinsho/nvim-bufferline.lua
-    "BufferLineTabClose",
-    "BufferlineBufferSelected",
-    "BufferLineFill",
-    "BufferLineBackground",
-    "BufferLineSeparator",
-    "BufferLineIndicatorSelected",
+    "bufferlinetabclose",
+    "bufferlinebufferselected",
+    "bufferlinefill",
+    "bufferlinebackground",
+    "bufferlineseparator",
+    "bufferlineindicatorselected",
   },
   exclude = {}, -- table: groups you don't want to clear
 })
@@ -414,7 +417,8 @@ local ts = require "nvim-treesitter.configs"
 ts.setup {
   ensure_installed = "maintained", 
   indent = {enable = true}, 
-  highlight = {enable = true}
+  highlight = {enable = true, disable = { "elixir" }}
+
 }
 
 -- Lualine
