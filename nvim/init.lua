@@ -24,7 +24,8 @@ opt.visualbell = true
 opt.inccommand = "nosplit"
 opt.background = "dark"
 opt.autoread = true
-opt.listchars = { tab = '»»', trail = '·' }
+opt.listchars = { trail = '·', tab = '»»' }
+opt.list = true
 vim.o.encoding = "utf-8"
 vim.o.completeopt = "menu,menuone,noselect"
 vim.g.forest_night_enable_italic = 1
@@ -47,6 +48,8 @@ startup(function(use)
   use 'williamboman/nvim-lsp-installer'
   use "ray-x/lsp_signature.nvim"
 
+  -- Indent colorscheme
+  use "lukas-reineke/indent-blankline.nvim"
 
   -- Completion engine
   use 'hrsh7th/cmp-nvim-lsp'
@@ -101,7 +104,11 @@ startup(function(use)
     config = function() require'nvim-tree'.setup {} end
   }
 
+  -- Select similar words or sentences
   use "mg979/vim-visual-multi"
+
+  -- Smooth scrolling
+  use 'karb94/neoscroll.nvim'
 
   -- Trouble window
   use {
@@ -118,11 +125,14 @@ startup(function(use)
     end
   }
 
+  -- Lightbulb for available code-action
+  use 'kosayoda/nvim-lightbulb'
+
   -- Elixir language support since treesitter for elixir is broken
   use "elixir-editors/vim-elixir"
 end)
 
--- Theme
+  -- Theme
 vim.g["gruvbox_contrast_dark"] = "hard"
 vim.cmd([[colorscheme gruvbox]])
 
@@ -131,7 +141,6 @@ local on_attach = function(client, bufnr)
   local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
 
   local map_opts = {noremap = true, silent = true}
-
   map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<cr>", map_opts)
   map("n", "ge", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
   map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
@@ -143,13 +152,19 @@ local on_attach = function(client, bufnr)
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 400)")
 end
 
+-- Peek functon signature when typing
 require "lsp_signature".setup()
+
+-- Setup smooth scrolling
+require('neoscroll').setup({
+  mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>', '<C-y>', '<C-e>', 'zt', 'zz', 'zb' }
+})
 
 -- Setup transparency
 require("transparent").setup({
   enable = true, -- boolean: enable transparent
   extra_groups = { -- table/string: additional groups that should be clear
-    -- In particular, when you set it to 'all', that means all avaliable groups
+    -- In particular, when you set it to 'all', that means all available groups
 
     -- example of akinsho/nvim-bufferline.lua
     "bufferlinetabclose",
@@ -161,6 +176,32 @@ require("transparent").setup({
   },
   exclude = {}, -- table: groups you don't want to clear
 })
+
+vim.opt.termguicolors = true
+vim.cmd [[highlight IndentBlanklineIndent1 guibg=#1f1f1f gui=nocombine]]
+vim.cmd [[highlight IndentBlanklineIndent2 guibg=#1a1a1a gui=nocombine]]
+
+require("indent_blankline").setup {
+    char = "",
+    char_highlight_list = {
+        "IndentBlanklineIndent1",
+        "IndentBlanklineIndent2",
+    },
+    space_char_highlight_list = {
+        "IndentBlanklineIndent1",
+        "IndentBlanklineIndent2",
+    },
+    show_trailing_blankline_indent = false,
+    show_current_context = true,
+    show_current_context_start = true,
+}
+
+-- indent-blankline
+-- require("indent_blankline").setup {
+--   space_char_blankline = " ",
+--   show_current_context = true,
+--   show_current_context_start = true,
+-- }
 
 -- Setup CPM
 local cmp = require'cmp'
@@ -410,17 +451,17 @@ remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap
 remap('i', '<s-tab>', [[pumvisible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
 
 -- Telescope config
-vim.cmd [[nnoremap <leader>ff <cmd>lua require('telescope.builtin').find_files()<cr>]]
-vim.cmd [[nnoremap <leader>fg <cmd>lua require('telescope.builtin').live_grep()<cr>]]
-vim.cmd [[nnoremap <leader>fb <cmd>lua require('telescope.builtin').buffers()<cr>]]
-vim.cmd [[nnoremap <leader>fh <cmd>lua require('telescope.builtin').help_tags()<cr>]]
+vim.cmd [[nnoremap ff <cmd>lua require('telescope.builtin').find_files()<cr>]]
+vim.cmd [[nnoremap fg <cmd>lua require('telescope.builtin').live_grep()<cr>]]
+vim.cmd [[nnoremap fb <cmd>lua require('telescope.builtin').buffers()<cr>]]
+vim.cmd [[nnoremap fh <cmd>lua require('telescope.builtin').help_tags()<cr>]]
 
 -- Treesitter
 local ts = require "nvim-treesitter.configs"
 ts.setup {
   ensure_installed = "maintained", 
   indent = {enable = true}, 
-  highlight = {enable = true, disable = { "elixir" }}
+  highlight = {enable = true, disable = {}}
 
 }
 
