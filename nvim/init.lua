@@ -136,24 +136,62 @@ end)
 vim.g["gruvbox_contrast_dark"] = "hard"
 vim.cmd([[colorscheme gruvbox]])
 
+-- Nvim tree
+require("nvim-tree").setup ()
+
+-- Order go imports helper function
+function goimports(timeout_ms)
+  local context = { only = { "source.organizeImports" } }
+  vim.validate { context = { context, "t", true } }
+
+  local params = vim.lsp.util.make_range_params()
+  params.context = context
+
+  -- See the implementation of the textDocument/codeAction callback
+  -- (lua/vim/lsp/handler.lua) for how to do this properly.
+  local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, timeout_ms)
+  if not result or next(result) or result[1] == nil then return end
+  local actions = result[1].result
+  if not actions then return end
+  local action = actions[1]
+
+  -- textDocument/codeAction can return either Command[] or CodeAction[]. If it
+  -- is a CodeAction, it can have either an edit, a command or both. Edits
+  -- should be executed first.
+  if action.edit or type(action.command) == "table" then
+    if action.edit then
+      vim.lsp.util.apply_workspace_edit(action.edit)
+    end
+    if type(action.command) == "table" then
+      vim.lsp.buf.execute_command(action.command)
+    end
+  else
+    vim.lsp.buf.execute_command(action)
+  end
+end
+
 -- LSP config
 local on_attach = function(client, bufnr)
   local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
 
   local map_opts = {noremap = true, silent = true}
   map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<cr>", map_opts)
-  map("n", "ge", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
+  map("n", "ge", "<cmd>lua vim.diagnostic.open_float()<cr>", map_opts)
   map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
   map("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", map_opts)
   map("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
   map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
+  map("n", "gs", "<cmd>lua vim.lsp.buf.signature_help()<CR>", map_opts)
+  map("n", "<Leader>gr", "<cmd>lua vim.lsp.buf.references()<CR>", map_opts)
+
+  -- Go import formatting & ordering
+  vim.cmd("autocmd BufWritePre *.go lua goimports(1000)")
 
   -- format on save
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 400)")
 end
 
--- Peek functon signature when typing
-require "lsp_signature".setup()
+-- Peek function signature when typing
 
 -- Setup smooth scrolling
 require('neoscroll').setup({
@@ -195,13 +233,6 @@ require("indent_blankline").setup {
     show_current_context = true,
     show_current_context_start = true,
 }
-
--- indent-blankline
--- require("indent_blankline").setup {
---   space_char_blankline = " ",
---   show_current_context = true,
---   show_current_context_start = true,
--- }
 
 -- Setup CPM
 local cmp = require'cmp'
@@ -288,6 +319,39 @@ cmp.setup.cmdline(':', {
   })
 })
 
+-- Setup Gitsigns
+require('gitsigns').setup {
+  on_attach = function(bufnr)
+    local function map(mode, lhs, rhs, opts)
+        opts = vim.tbl_extend('force', {noremap = true, silent = true}, opts or {})
+        vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts)
+    end
+    
+    -- Navigation
+    map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
+    map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
+    
+    -- Actions
+    map('n', '<leader>hs', '<cmd>Gitsigns stage_hunk<CR>')
+    map('v', '<leader>hs', '<cmd>Gitsigns stage_hunk<CR>')
+    map('n', '<leader>hr', '<cmd>Gitsigns reset_hunk<CR>')
+    map('v', '<leader>hr', '<cmd>Gitsigns reset_hunk<CR>')
+    map('n', '<leader>hS', '<cmd>Gitsigns stage_buffer<CR>')
+    map('n', '<leader>hu', '<cmd>Gitsigns undo_stage_hunk<CR>')
+    map('n', '<leader>hR', '<cmd>Gitsigns reset_buffer<CR>')
+    map('n', '<leader>hp', '<cmd>Gitsigns preview_hunk<CR>')
+    map('n', '<leader>hb', '<cmd>lua require"gitsigns".blame_line{full=true}<CR>')
+    map('n', '<leader>tb', '<cmd>Gitsigns toggle_current_line_blame<CR>')
+    map('n', '<leader>hd', '<cmd>Gitsigns diffthis<CR>')
+    map('n', '<leader>hD', '<cmd>lua require"gitsigns".diffthis("~")<CR>')
+    map('n', '<leader>td', '<cmd>Gitsigns toggle_deleted<CR>')
+    
+    -- Text object                                        
+    map('o', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+    map('x', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+  end
+}
+
 
 -- Setup lspconfig.
 local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
@@ -296,13 +360,38 @@ local lspconfig = require("lspconfig")
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/home/aleksi/.elixir-ls/language_server.sh" },
+  cmd = { "/home/aleksiholappa/.elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
       fetchDeps = false
     }
   }
+})
+
+lspconfig.gopls.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  cmd = { "gopls" },
+  filetypes = { "go", "gomod", "gotmpl" },
+  settings = {
+    gopls = {
+      analyses = {
+        unusedparams = true,
+      },
+      staticcheck = true,
+    },
+  }
+})
+
+lspconfig.terraformls.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  cmd = { "terraform-ls", "serve" }
+})
+
+lspconfig.tflint.setup({
+  on_attach = on_attach
 })
 
 lspconfig.tsserver.setup({
@@ -312,11 +401,12 @@ lspconfig.tsserver.setup({
     local map_opts = {noremap = true, silent = true}
 
     map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<CR>", map_opts)
-    map("n", "ge", "<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<cr>", map_opts)
+    map("n", "ge", "<cmd>lua vim.diagnostic.open_float()<cr>", map_opts)
     map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
     map("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", map_opts)
     map("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
     map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
+    map("n", "<Leader>gr", "<cmd>lua vim.lsp.buf.references()<CR>", map_opts)
 
     -- disable tsserver formatting
     client.resolved_capabilities.document_formatting = false
@@ -353,7 +443,7 @@ local eslint = {
 }
 
 local prettier = {
-  formatCommand = 'prettier --stdin-filepath ${INPUT}',
+  formatCommand = 'prettier_d_slim --stdin --stdin-filepath ${INPUT}',
   formatStdin = true
 }
 
@@ -461,7 +551,7 @@ local ts = require "nvim-treesitter.configs"
 ts.setup {
   ensure_installed = "maintained", 
   indent = {enable = true}, 
-  highlight = {enable = true, disable = {}}
+  highlight = {enable = true}
 
 }
 
