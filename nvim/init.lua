@@ -387,7 +387,6 @@ lspconfig.gopls.setup({
 lspconfig.terraformls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "terraform-ls", "serve" }
 })
 
 lspconfig.tflint.setup({
@@ -433,15 +432,6 @@ lspconfig.solargraph.setup({
   root_dir = function() return vim.loop.cwd() end
 })
 
-local eslint = {
-  lintCommand = "eslint_d -f unix --stdin --stdin-filename ${INPUT}",
-  lintStdin = true,
-  lintFormats = {"%f:%l:%c: %m"},
-  lintIgnoreExitCode = true,
-  formatCommand = "eslint_d --stdin --fix-to-stdout --stdin-filename=${INPUT}",
-  formatStdin = true
-}
-
 local prettier = {
   formatCommand = 'prettier_d_slim --stdin --stdin-filepath ${INPUT}',
   formatStdin = true
@@ -481,17 +471,17 @@ lspconfig.efm.setup {
   end,
   settings = {
     languages = {
-      javascript = {eslint},
-      javascriptreact = {eslint},
+      javascript = {prettier},
+      javascriptreact = {prettier},
       json = {prettier},
       scss = {prettier},
       css = {prettier},
       yaml = {prettier},
       html = {prettier},
-      ["javascript.jsx"] = {eslint},
-      typescript = {eslint},
-      ["typescript.tsx"] = {eslint},
-      typescriptreact = {eslint}
+      ["javascript.jsx"] = {prettier},
+      typescript = {prettier},
+      ["typescript.tsx"] = {prettier},
+      typescriptreact = {prettier}
     }
   },
   filetypes = {
@@ -502,6 +492,15 @@ lspconfig.efm.setup {
     "typescript.tsx",
     "typescriptreact"
   },
+}
+
+lspconfig.eslint.setup {
+  on_attach = function(client, bufnr)
+    client.resolved_capabilities.document_formatting = true
+    -- format on save
+    vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()")
+  end,
+  capabilities = capabilities
 }
 
 -- Setup autopairing
