@@ -28,6 +28,7 @@ opt.listchars = { trail = '·', tab = '»»' }
 opt.list = true
 vim.o.encoding = "utf-8"
 vim.o.completeopt = "menu,menuone,noselect"
+vim.o.clipboard = "unnamedplus"
 vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
 vim.g.glow_binary_path = vim.env.HOME .. "/bin"
@@ -359,7 +360,7 @@ local lspconfig = require("lspconfig")
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/home/aleksiholappa/.elixir-ls/language_server.sh" },
+  cmd = { "/home/aleksi/.elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
