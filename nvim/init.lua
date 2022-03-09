@@ -95,7 +95,6 @@ startup(function(use)
 
   -- close pairs
   use "windwp/nvim-autopairs"
-  use "rstacruz/vim-hyperstyle"
 
   -- File explorer
   use {
@@ -433,7 +432,7 @@ lspconfig.solargraph.setup({
 })
 
 local prettier = {
-  formatCommand = 'prettier_d_slim --stdin --stdin-filepath ${INPUT}',
+  formatCommand = "prettier --stdin --stdin-filepath ${INPUT}",
   formatStdin = true
 }
 
@@ -496,9 +495,6 @@ lspconfig.efm.setup {
 
 lspconfig.eslint.setup {
   on_attach = function(client, bufnr)
-    client.resolved_capabilities.document_formatting = true
-    -- format on save
-    vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_seq_sync()")
   end,
   capabilities = capabilities
 }
