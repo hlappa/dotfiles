@@ -11,13 +11,13 @@ opt.number = true
 opt.termguicolors = true
 opt.splitbelow = true
 opt.splitright = true
+opt.undofile = true
+opt.undodir = vim.fn.expand("~/.tmp")
 opt.lazyredraw = true
 opt.showmode = false
 opt.incsearch = true
 opt.ignorecase = true
 opt.smartcase = true
-opt.undofile = true
-opt.undodir = vim.fn.expand("~/.tmp")
 opt.mouse = "a"
 opt.errorbells = false
 opt.visualbell = true
@@ -70,7 +70,7 @@ startup(function(use)
   use "nvim-treesitter/nvim-treesitter"
 
   -- Move code blocks or row
-  use "zirrostig/vim-schlepp"
+  use 'fedepujol/move.nvim'
 
   -- file search
   use {
@@ -101,7 +101,6 @@ startup(function(use)
   use {
     'kyazdani42/nvim-tree.lua',
     requires = 'kyazdani42/nvim-web-devicons',
-    config = function() require'nvim-tree'.setup {} end
   }
 
   -- Select similar words or sentences
@@ -125,6 +124,9 @@ startup(function(use)
     end
   }
 
+  -- Copilot
+  use "github/copilot.vim"
+
   -- Lightbulb for available code-action
   use 'kosayoda/nvim-lightbulb'
 
@@ -137,7 +139,7 @@ vim.g["gruvbox_contrast_dark"] = "hard"
 vim.cmd([[colorscheme gruvbox]])
 
 -- Nvim tree
-require("nvim-tree").setup ()
+require("nvim-tree").setup ({})
 
 -- Order go imports helper function
 function goimports(timeout_ms)
@@ -188,7 +190,7 @@ local on_attach = function(client, bufnr)
   vim.cmd("autocmd BufWritePre *.go lua goimports(1000)")
 
   -- format on save
-  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 400)")
+  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)")
 end
 
 -- Peek function signature when typing
@@ -433,7 +435,7 @@ lspconfig.solargraph.setup({
 })
 
 local prettier = {
-  formatCommand = "prettier --stdin --stdin-filepath ${INPUT}",
+  formatCommand = "prettier_d_slim --stdin --stdin-filepath ${INPUT}",
   formatStdin = true
 }
 
@@ -567,11 +569,15 @@ require('lualine').setup({
 }
 })
 
--- Schlepp mappings
-vim.cmd [[vmap <unique> <up> <Plug>SchleppUp]]
-vim.cmd [[vmap <unique> <down>  <Plug>SchleppDown]]
-vim.cmd [[vmap <unique> <left>  <Plug>SchleppLeft]]
-vim.cmd [[vmap <unique> <right> <Plug>SchleppRight]]
+-- Move maps
+vim.api.nvim_set_keymap('n', '<C-j>', ":MoveLine(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-k>', ":MoveLine(-1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<C-j>', ":MoveBlock(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<C-k>', ":MoveBlock(-1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-l>', ":MoveHChar(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-h>', ":MoveHChar(-1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<C-l>', ":MoveHBlock(1)<CR>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('v', '<C-h>', ":MoveHBlock(-1)<CR>", { noremap = true, silent = true })
 
 -- File Explorer
 vim.api.nvim_set_keymap('n', '<Leader>r', ':NvimTreeRefresh<CR>', { noremap = true, silent = true })
