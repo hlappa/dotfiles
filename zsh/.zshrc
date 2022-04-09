@@ -8,7 +8,7 @@ fpath=(${ASDF_DIR}/completions $fpath)
 autoload -Uz compinit && compinit
 
 # Path to your oh-my-zsh installation.
-export ZSH="/home/aleksi/.oh-my-zsh"
+export ZSH="/home/aleksiholappa/.oh-my-zsh"
 
 ZSH_THEME="agnoster"
 
@@ -26,7 +26,7 @@ ENABLE_CORRECTION="true"
 
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
-plugins=(git git-prompt docker docker-compose aws ruby terraform timer sudo npm yarn web-search zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git docker docker-compose aws ruby terraform timer sudo npm yarn web-search zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -41,6 +41,12 @@ alias ls="ls -al"
 alias n="nvim"
 alias shd="shutdown -h now"
 alias up="docker-compose up"
-alias ws="web_search google"
+alias google="web_search google"
+alias sus="systemctl suspend"
+alias lock="loginctl lock-session"
+alias kb="setxkbmap -layout us,fi -option grp:shifts_toggle"
+alias pic="picom -b -f --experimental-backends"
+alias bat="upower --dump"
+alias build="docker-compose build"
 
 tmux -l
