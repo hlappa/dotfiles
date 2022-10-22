@@ -1,42 +1,39 @@
 -- Basic opts
-local opt = vim.opt
+local o = vim.opt
 
-opt.foldmethod = "syntax"
-opt.foldlevelstart = 99
-opt.smartindent = true
-opt.tabstop = 2
-opt.shiftwidth = 2
-opt.expandtab = true
-opt.number = true
-opt.termguicolors = true
-opt.splitbelow = true
-opt.splitright = true
-opt.undofile = true
-opt.undodir = vim.fn.expand("~/.tmp")
-opt.lazyredraw = true
-opt.showmode = false
-opt.incsearch = true
-opt.ignorecase = true
-opt.smartcase = true
-opt.mouse = "a"
-opt.errorbells = false
-opt.visualbell = true
-opt.inccommand = "nosplit"
-opt.background = "dark"
-opt.autoread = true
-opt.listchars = { trail = '·', tab = '»»' }
-opt.list = true
-vim.o.encoding = "utf-8"
-vim.o.completeopt = "menu,menuone,noselect"
-vim.o.clipboard = "unnamedplus"
+o.foldmethod = "syntax"
+o.foldlevelstart = 99
+o.smartindent = true
+o.tabstop = 2
+o.shiftwidth = 2
+o.expandtab = true
+o.number = true
+o.termguicolors = true
+o.splitbelow = true
+o.splitright = true
+o.undofile = true
+o.undodir = vim.fn.expand("~/.tmp")
+o.lazyredraw = true
+o.showmode = false
+o.incsearch = true
+o.ignorecase = true
+o.smartcase = true
+o.mouse = "a"
+o.errorbells = false
+o.visualbell = true
+o.inccommand = "nosplit"
+o.background = "dark"
+o.autoread = true
+o.listchars = { trail = '·', tab = '»»' }
+o.list = true
+o.encoding = "utf-8"
+o.completeopt = "menu,menuone,noselect"
+o.clipboard = "unnamedplus"
 vim.g.forest_night_enable_italic = 1
 vim.g.forest_night_diagnostic_text_highlight = 1
 vim.g.glow_binary_path = vim.env.HOME .. "/bin"
 vim.g.mapleader = " "
 vim.wo.relativenumber = true
-
--- Packer stuff
-vim.cmd [[packadd packer.nvim]]
 
 local startup = require("packer").startup
 
@@ -62,9 +59,9 @@ startup(function(use)
   -- Snippets
   use 'honza/vim-snippets'
   use 'rafamadriz/friendly-snippets'
-  use 'hrsh7th/vim-vsnip-integ'
   use 'hrsh7th/cmp-vsnip'
   use 'hrsh7th/vim-vsnip'
+  use 'hrsh7th/vim-vsnip-integ'
 
   -- syntax highlighting
   use "nvim-treesitter/nvim-treesitter"
@@ -87,8 +84,11 @@ startup(function(use)
   -- Status bar
   use "hoob3rt/lualine.nvim"
 
+  -- Notifications
+  use 'rcarriga/nvim-notify'
+
   -- Theme
-  use {"npxbr/gruvbox.nvim", requires = {"rktjmp/lush.nvim"}}
+  use "ellisonleao/gruvbox.nvim"
   use "xiyaowong/nvim-transparent"
 
   -- Preview Markdown files
@@ -124,8 +124,11 @@ startup(function(use)
     end
   }
 
-  -- Copilot
-  use "github/copilot.vim"
+  -- Context
+  use 'wellle/context.vim'
+
+  -- Colorizer
+  use "norcalli/nvim-colorizer.lua"
 
   -- Lightbulb for available code-action
   use 'kosayoda/nvim-lightbulb'
@@ -134,9 +137,28 @@ startup(function(use)
   use "elixir-editors/vim-elixir"
 end)
 
-  -- Theme
-vim.g["gruvbox_contrast_dark"] = "hard"
-vim.cmd([[colorscheme gruvbox]])
+-- Notofications setup
+vim.notify = require("notify")
+
+-- Theme
+require("gruvbox").setup({
+  undercurl = true,
+  underline = true,
+  bold = true,
+  italic = true,
+  strikethrough = true,
+  invert_selection = false,
+  invert_signs = false,
+  invert_tabline = false,
+  invert_intend_guides = false,
+  inverse = true, -- invert background for search, diffs, statuslines and errors
+  contrast = "soft", -- can be "hard", "soft" or empty string
+  palette_overrides = {},
+  overrides = {},
+  dim_inactive = false,
+  transparent_mode = false,
+})
+vim.cmd("colorscheme gruvbox")
 
 -- Nvim tree
 require("nvim-tree").setup ({})
@@ -217,9 +239,9 @@ require("transparent").setup({
   exclude = {}, -- table: groups you don't want to clear
 })
 
-vim.opt.termguicolors = true
-vim.cmd [[highlight IndentBlanklineIndent1 guibg=#1f1f1f gui=nocombine]]
-vim.cmd [[highlight IndentBlanklineIndent2 guibg=#1a1a1a gui=nocombine]]
+o.termguicolors = true
+vim.cmd("highlight IndentBlanklineIndent1 guibg=#1f1f1f gui=nocombine")
+vim.cmd("highlight IndentBlanklineIndent2 guibg=#1a1a1a gui=nocombine")
 
 require("indent_blankline").setup {
     char = "",
@@ -354,7 +376,6 @@ require('gitsigns').setup {
   end
 }
 
-
 -- Setup lspconfig.
 local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
 local lspconfig = require("lspconfig")
@@ -362,7 +383,7 @@ local lspconfig = require("lspconfig")
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/home/aleksi/.elixir-ls/language_server.sh" },
+  cmd = { "/home/aleksiholappa/.elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
@@ -397,20 +418,10 @@ lspconfig.tflint.setup({
 
 lspconfig.tsserver.setup({
   on_attach = function(client, bufnr) 
-    local function map(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-
-    local map_opts = {noremap = true, silent = true}
-
-    map("n", "df", "<cmd>lua vim.lsp.buf.formatting()<CR>", map_opts)
-    map("n", "ge", "<cmd>lua vim.diagnostic.open_float()<cr>", map_opts)
-    map("n", "gd", "<cmd>lua vim.lsp.buf.definition()<cr>", map_opts)
-    map("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<cr>", map_opts)
-    map("n", "gt", "<cmd>lua vim.lsp.buf.type_definition()<cr>", map_opts)
-    map('n', "ca", "<cmd>lua vim.lsp.buf.code_action()<CR>", map_opts)
-    map("n", "<Leader>gr", "<cmd>lua vim.lsp.buf.references()<CR>", map_opts)
-
     -- disable tsserver formatting
     client.resolved_capabilities.document_formatting = false
+
+    on_attach(client, bufnr)
   end,
   capabilities = capabilities,
   root_dir = function() return vim.loop.cwd() end,
@@ -456,10 +467,10 @@ local function eslint_config_exists()
 end
 
 lspconfig.efm.setup {
-  on_attach = function(client)
+  on_attach = function(client, bufnr)
     client.resolved_capabilities.document_formatting = true
     client.resolved_capabilities.goto_definition = false
-    on_attach(client)
+    on_attach(client, bufnr)
   end,
   init_options = {
     documentFormatting = true,
@@ -539,15 +550,15 @@ remap('i', '<tab>', [[pumvisible() ? "<c-n>" : "<tab>"]], { expr = true, noremap
 remap('i', '<s-tab>', [[pumvisible() ? "<c-p>" : "<bs>"]], { expr = true, noremap = true })
 
 -- Telescope config
-vim.cmd [[nnoremap ff <cmd>lua require('telescope.builtin').find_files()<cr>]]
-vim.cmd [[nnoremap fg <cmd>lua require('telescope.builtin').live_grep()<cr>]]
-vim.cmd [[nnoremap fb <cmd>lua require('telescope.builtin').buffers()<cr>]]
-vim.cmd [[nnoremap fh <cmd>lua require('telescope.builtin').help_tags()<cr>]]
+vim.cmd("nnoremap ff <cmd>lua require('telescope.builtin').find_files()<cr>")
+vim.cmd("nnoremap fg <cmd>lua require('telescope.builtin').live_grep()<cr>")
+vim.cmd("nnoremap fb <cmd>lua require('telescope.builtin').buffers()<cr>")
+vim.cmd("nnoremap fh <cmd>lua require('telescope.builtin').help_tags()<cr>")
 
 -- Treesitter
 local ts = require "nvim-treesitter.configs"
 ts.setup {
-  ensure_installed = "maintained", 
+  ensure_installed = "all", 
   indent = {enable = true}, 
   highlight = {enable = true}
 
@@ -582,6 +593,10 @@ vim.api.nvim_set_keymap('v', '<C-h>', ":MoveHBlock(-1)<CR>", { noremap = true, s
 -- File Explorer
 vim.api.nvim_set_keymap('n', '<Leader>r', ':NvimTreeRefresh<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<Leader>n', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
+
+-- splitting
+vim.api.nvim_set_keymap('n', '<Leader>s', ':sp<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<Leader>v', ':vs<CR>', { noremap = true, silent = true })
 
 -- Markdown preview shortcut
 vim.api.nvim_set_keymap('n', '<leader>p', ':Glow<CR>', { noremap = true, silent = true })
