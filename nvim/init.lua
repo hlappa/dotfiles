@@ -13,7 +13,6 @@ o.splitbelow = true
 o.splitright = true
 o.undofile = true
 o.undodir = vim.fn.expand("~/.tmp")
-o.lazyredraw = true
 o.showmode = false
 o.incsearch = true
 o.ignorecase = true
@@ -124,8 +123,30 @@ startup(function(use)
     end
   }
 
-  -- Context
-  use 'wellle/context.vim'
+  -- Noice
+  -- use({
+  --   "folke/noice.nvim",
+  --   event = "VimEnter",
+  --   config = function()
+  --     require("noice").setup({
+  --       cmdline = {
+  --         view = "cmdline",
+  --       },
+  --       popupmenu = {
+  --         enabled = true,
+  --         backend = 'cmp',
+  --       },
+  --     })
+  --   end,
+  --   requires = {
+  --     -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+  --     "MunifTanjim/nui.nvim",
+  --     -- OPTIONAL:
+  --     --   `nvim-notify` is only needed, if you want to use the notification view.
+  --     --   If not available, we use `mini` as the fallback
+  --     "rcarriga/nvim-notify",
+  --     }
+  -- })
 
   -- Colorizer
   use "norcalli/nvim-colorizer.lua"
@@ -138,7 +159,9 @@ startup(function(use)
 end)
 
 -- Notofications setup
-vim.notify = require("notify")
+vim.notify = require("notify").setup({
+  background_color = "#000000"
+})
 
 -- Theme
 require("gruvbox").setup({
@@ -212,7 +235,7 @@ local on_attach = function(client, bufnr)
   vim.cmd("autocmd BufWritePre *.go lua goimports(1000)")
 
   -- format on save
-  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.formatting_sync(nil, 1000)")
+  vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.format(nil, 300)")
 end
 
 -- Peek function signature when typing
@@ -350,11 +373,11 @@ require('gitsigns').setup {
         opts = vim.tbl_extend('force', {noremap = true, silent = true}, opts or {})
         vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, opts)
     end
-    
+
     -- Navigation
     map('n', ']c', "&diff ? ']c' : '<cmd>Gitsigns next_hunk<CR>'", {expr=true})
     map('n', '[c', "&diff ? '[c' : '<cmd>Gitsigns prev_hunk<CR>'", {expr=true})
-    
+
     -- Actions
     map('n', '<leader>hs', '<cmd>Gitsigns stage_hunk<CR>')
     map('v', '<leader>hs', '<cmd>Gitsigns stage_hunk<CR>')
@@ -369,21 +392,21 @@ require('gitsigns').setup {
     map('n', '<leader>hd', '<cmd>Gitsigns diffthis<CR>')
     map('n', '<leader>hD', '<cmd>lua require"gitsigns".diffthis("~")<CR>')
     map('n', '<leader>td', '<cmd>Gitsigns toggle_deleted<CR>')
-    
-    -- Text object                                        
+
+    -- Text object
     map('o', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
     map('x', 'ih', ':<C-U>Gitsigns select_hunk<CR>')
   end
 }
 
 -- Setup lspconfig.
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
 local lspconfig = require("lspconfig")
 
 lspconfig.elixirls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "/home/aleksiholappa/.elixir-ls/language_server.sh" },
+  cmd = { "/home/aleksi/.elixir-ls/language_server.sh" },
   settings = {
     elixirLS = {
       dialyzerEnabled = true,
