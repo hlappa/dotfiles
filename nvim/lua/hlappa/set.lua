@@ -35,3 +35,5 @@ o.wrap = false
 o.hlsearch = false
 o.scrolloff = 8
 o.signcolumn = "yes"
+
+vim.g.mapleader = " "

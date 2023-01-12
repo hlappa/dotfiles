@@ -39,9 +39,6 @@ return require('packer').startup(function(use)
   -- Indent colorscheme
   use "lukas-reineke/indent-blankline.nvim"
 
-  -- Move code blocks or row
-  use 'fedepujol/move.nvim'
-
   -- Git
   use {
     'lewis6991/gitsigns.nvim',
