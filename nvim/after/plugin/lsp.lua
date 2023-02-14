@@ -3,43 +3,43 @@ local lsp = require("lsp-zero")
 lsp.preset("recommended")
 
 lsp.ensure_installed({
-  'tsserver',
-  'eslint',
-  'sumneko_lua',
-  'elixirls',
-  'terraformls',
-  'tflint',
-  'solargraph'
+    'tsserver',
+    'eslint',
+    'lua_ls',
+    'elixirls',
+    'terraformls',
+    'tflint',
+    'solargraph'
 })
 
 -- Fix Undefined global 'vim'
 lsp.configure('sumneko_lua', {
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = { 'vim' }
-      }
+    settings = {
+        Lua = {
+            diagnostics = {
+                globals = { 'vim' }
+            }
+        }
     }
-  }
 })
 
 lsp.configure('solargraph', {
-  settings = {
-    solargraph = {
-      diagnostics = true,
-      completion = true
+    settings = {
+        solargraph = {
+            diagnostics = true,
+            completion = true
+        }
     }
-  }
 })
 
 lsp.set_preferences({
-  suggest_lsp_servers = false,
-  sign_icons = {
-    error = 'E',
-    warn = 'W',
-    hint = 'H',
-    info = 'I'
-  }
+    suggest_lsp_servers = false,
+    sign_icons = {
+        error = 'E',
+        warn = 'W',
+        hint = 'H',
+        info = 'I'
+    }
 })
 
 lsp.on_attach(function(client, bufnr)
@@ -70,5 +70,5 @@ end)
 lsp.setup()
 
 vim.diagnostic.config({
-  virtual_text = true,
+    virtual_text = true,
 })
