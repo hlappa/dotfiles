@@ -3,43 +3,33 @@ local lsp = require("lsp-zero")
 lsp.preset("recommended")
 
 lsp.ensure_installed({
-    'tsserver',
-    'eslint',
-    'lua_ls',
-    'elixirls',
-    'terraformls',
-    'tflint',
-    'solargraph'
+  'tsserver',
+  'eslint',
+  'lua_ls',
+  'elixirls',
+  'terraformls',
+  'tflint',
 })
 
 -- Fix Undefined global 'vim'
-lsp.configure('sumneko_lua', {
-    settings = {
-        Lua = {
-            diagnostics = {
-                globals = { 'vim' }
-            }
-        }
+lsp.configure('lua_ls', {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { 'vim' }
+      }
     }
-})
-
-lsp.configure('solargraph', {
-    settings = {
-        solargraph = {
-            diagnostics = true,
-            completion = true
-        }
-    }
+  }
 })
 
 lsp.set_preferences({
-    suggest_lsp_servers = false,
-    sign_icons = {
-        error = 'E',
-        warn = 'W',
-        hint = 'H',
-        info = 'I'
-    }
+  suggest_lsp_servers = false,
+  sign_icons = {
+    error = 'E',
+    warn = 'W',
+    hint = 'H',
+    info = 'I'
+  }
 })
 
 lsp.on_attach(function(client, bufnr)
@@ -63,6 +53,8 @@ lsp.on_attach(function(client, bufnr)
   vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
   vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
 
+  require "lsp_signature".on_attach({}, bufnr)
+
   -- format on save
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.format(nil, 300)")
 end)
@@ -70,5 +62,5 @@ end)
 lsp.setup()
 
 vim.diagnostic.config({
-    virtual_text = true,
+  virtual_text = true,
 })

@@ -1,37 +1,26 @@
-require("gruvbox").setup({
-    undercurl = true,
-    underline = true,
-    bold = true,
-    italic = true,
-    strikethrough = true,
-    invert_selection = false,
-    invert_signs = false,
-    invert_tabline = false,
-    invert_intend_guides = false,
-    inverse = true, -- invert background for search, diffs, statuslines and errors
-    contrast = "soft", -- can be "hard", "soft" or empty string
-    palette_overrides = {},
-    overrides = {},
-    dim_inactive = false,
-    transparent_mode = false,
-})
+-- Enable telescope theme
+vim.g.gruvbox_baby_telescope_theme = 1
 
-vim.cmd.colorscheme("gruvbox")
+-- Enable transparent mode
+vim.g.gruvbox_baby_transparent_mode = 1
+
+vim.cmd.colorscheme("gruvbox-baby")
+
+-- vim.cmd.colorscheme("gruvbox")
 
 require("transparent").setup({
-    enable = true, -- boolean: enable transparent
-    extra_groups = { -- table/string: additional groups that should be clear
-        -- In particular, when you set it to 'all', that means all available groups
+  extra_groups = { -- table/string: additional groups that should be clear
+    -- In particular, when you set it to 'all', that means all available groups
 
-        -- example of akinsho/nvim-bufferline.lua
-        "bufferlinetabclose",
-        "bufferlinebufferselected",
-        "bufferlinefill",
-        "bufferlinebackground",
-        "bufferlineseparator",
-        "bufferlineindicatorselected",
-    },
-    exclude = {}, -- table: groups you don't want to clear
+    -- example of akinsho/nvim-bufferline.lua
+    "bufferlinetabclose",
+    "bufferlinebufferselected",
+    "bufferlinefill",
+    "bufferlinebackground",
+    "bufferlineseparator",
+    "bufferlineindicatorselected",
+  },
+  exclude_groups = {}, -- table: groups you don't want to clear
 })
 
 

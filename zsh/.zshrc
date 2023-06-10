@@ -7,8 +7,11 @@ fpath=(${ASDF_DIR}/completions $fpath)
 # initialise completions with ZSH's compinit
 autoload -Uz compinit && compinit
 
+source /Users/hlappa/.asdf/installs/gcloud/422.0.0/path.zsh.inc
+source /Users/hlappa/.asdf/installs/gcloud/422.0.0/completion.zsh.inc
+
 # Path to your oh-my-zsh installation.
-export ZSH="/home/aleksiholappa/.oh-my-zsh"
+export ZSH="/Users/hlappa/.oh-my-zsh"
 
 ZSH_THEME="agnoster"
 
@@ -26,7 +29,7 @@ ENABLE_CORRECTION="true"
 
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
-plugins=(git docker docker-compose aws ruby terraform timer sudo npm yarn web-search zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(git docker docker-compose aws gcloud ruby terraform sudo npm yarn web-search zsh-autosuggestions zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -35,18 +38,24 @@ source $ZSH/oh-my-zsh.sh
 PATH=$PATH:$HOME/.local/bin:$HOME/go/bin
 
 # Aliases
-alias zshconfig="nvim ~/.zshrc"
-alias ohmyzsh="nvim ~/.oh-my-zsh"
-alias ls="ls -al"
 alias n="nvim"
+alias zshconfig="n ~/.zshrc"
+alias ohmyzsh="n ~/.oh-my-zsh"
+alias ls="exa --long --icons --no-permissions --no-user --git --time-style long-iso --time=modified --group-directories-first -a"
+alias tree="exa --tree"
 alias shd="shutdown -h now"
 alias up="docker-compose up"
+alias build="docker-compose build"
+alias down="docker-compose down"
 alias google="web_search google"
 alias sus="systemctl suspend"
 alias lock="loginctl lock-session"
 alias kb="setxkbmap -layout us,fi -option grp:shifts_toggle"
 alias pic="picom -b -f --experimental-backends"
 alias bat="upower --dump"
-alias build="docker-compose build"
+alias eb="cd ~/git/epicbrief"
+alias main="git checkout main"
+
+eval "$(starship init zsh)"
 
 tmux -l
