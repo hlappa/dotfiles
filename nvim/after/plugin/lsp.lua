@@ -11,16 +11,6 @@ lsp.ensure_installed({
   'tflint',
 })
 
--- Fix Undefined global 'vim'
-lsp.configure('lua_ls', {
-  settings = {
-    Lua = {
-      diagnostics = {
-        globals = { 'vim' }
-      }
-    }
-  }
-})
 
 lsp.set_preferences({
   suggest_lsp_servers = false,
@@ -59,7 +49,47 @@ lsp.on_attach(function(client, bufnr)
   vim.cmd("autocmd BufWritePre <buffer> lua vim.lsp.buf.format(nil, 300)")
 end)
 
+-- Fix Undefined global 'vim'
+lsp.configure('lua_ls', {
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { 'vim' }
+      }
+    }
+  }
+})
+
+lsp.configure("elixirls", {
+  settings = {
+    elixirLS = {
+      dialyzerEnabled = true,
+      fetchDeps = false,
+    }
+  },
+  root_dir = function()
+    return vim.loop.cwd()
+  end
+})
+
 lsp.setup()
+
+local cmp = require("cmp")
+
+cmp.setup({
+  sources = {
+    { name = "nvim_lsp" },
+    { name = 'luasnip', keyword_length = 2 },
+    { name = "path" },
+    { name = "buffer" },
+  },
+  mapping = {
+    ["<CR>"] = cmp.mapping.confirm({
+      behavior = cmp.ConfirmBehavior.Replace,
+      select = true,
+    }),
+  },
+})
 
 vim.diagnostic.config({
   virtual_text = true,
