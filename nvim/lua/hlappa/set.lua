@@ -20,7 +20,6 @@ o.mouse = "a"
 o.errorbells = false
 o.visualbell = true
 o.inccommand = "nosplit"
-o.background = "dark"
 o.autoread = true
 o.listchars = { trail = '·', tab = '»»' }
 o.list = true
