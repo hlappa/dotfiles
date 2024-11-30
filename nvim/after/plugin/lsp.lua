@@ -58,12 +58,6 @@ lsp.configure('lua_ls', {
   }
 })
 
-lsp.configure("ts_ls", {
-  settings = {
-    filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
-  }
-})
-
 lsp.configure("elixirls", {
   settings = {
     elixirLS = {
