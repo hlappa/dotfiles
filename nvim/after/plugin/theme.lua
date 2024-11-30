@@ -1,12 +1,9 @@
--- Enable telescope theme
+-- Enable telescope theme and transpatent mode
 vim.g.gruvbox_baby_telescope_theme = 1
-
--- Enable transparent mode
 vim.g.gruvbox_baby_transparent_mode = 1
 
+-- Enable gruvbox-baby theme
 vim.cmd.colorscheme("gruvbox-baby")
-
--- vim.cmd.colorscheme("gruvbox")
 
 require("transparent").setup({
   extra_groups = { -- table/string: additional groups that should be clear

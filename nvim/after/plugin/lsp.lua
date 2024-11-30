@@ -2,13 +2,14 @@ local lsp = require("lsp-zero")
 
 lsp.preset("recommended")
 
-require('mason').setup({})
+require('mason').setup()
 require('mason-lspconfig').setup({
-  ensure_installed = { 'tsserver', 'eslint', 'lua_ls', 'elixirls', 'terraformls', 'tflint' },
+  ensure_installed = { 'ts_ls', 'lua_ls', 'elixirls', 'terraformls', 'tflint' },
   handlers = {
     lsp.default_setup,
   },
 })
+
 
 lsp.set_preferences({
   suggest_lsp_servers = false,
@@ -23,7 +24,7 @@ lsp.set_preferences({
 lsp.on_attach(function(client, bufnr)
   local opts = { buffer = bufnr, remap = false }
 
-  if client.name == "tsserver" then
+  if client.name == "ts_ls" then
     client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.documentRangeFormattingProvider = false
   end
@@ -37,7 +38,6 @@ lsp.on_attach(function(client, bufnr)
   vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
   vim.keymap.set("n", "ca", vim.lsp.buf.code_action, opts)
   vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-  vim.keymap.set("i", "<C-h>", vim.lsp.buf.signature_help, opts)
   vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
   vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
 
@@ -58,6 +58,12 @@ lsp.configure('lua_ls', {
   }
 })
 
+lsp.configure("ts_ls", {
+  settings = {
+    filetypes = { "typescript", "typescriptreact", "typescript.tsx" },
+  }
+})
+
 lsp.configure("elixirls", {
   settings = {
     elixirLS = {
@@ -69,6 +75,8 @@ lsp.configure("elixirls", {
     return vim.loop.cwd()
   end
 })
+
+require('lspconfig').eslint.setup({})
 
 lsp.setup()
 

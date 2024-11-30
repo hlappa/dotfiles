@@ -131,9 +131,6 @@ require("lazy").setup({
   -- Hover diagnostics
   "soulis-1256/eagle.nvim",
 
-  -- Translate TS errors to be more readable
-  "dmmulroy/ts-error-translator.nvim",
-
   -- Git integration
   {
     'lewis6991/gitsigns.nvim',
@@ -198,4 +195,10 @@ require("lazy").setup({
 
   -- Add automatic "end"
   "RRethy/nvim-treesitter-endwise",
+
+  -- HTTP Client
+  -- {
+  --   "rest-nvim/rest.nvim",
+  --   dependencies = { "nvim-neotest/nvim-nio" },
+  -- },
 })

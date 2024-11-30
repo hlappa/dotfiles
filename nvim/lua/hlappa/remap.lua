@@ -2,8 +2,6 @@
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
 vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
-vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
-vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
 
 -- Gitsigns
 vim.keymap.set('n', '<leader>gs', ':Gitsigns blame_line<CR>')
@@ -28,7 +26,7 @@ vim.api.nvim_set_keymap("i", "<C-h>", 'copilot#Previous()', { silent = true, exp
 vim.api.nvim_set_keymap("i", "<C-l>", 'copilot#Next()', { silent = true, expr = true })
 
 -- Trouble
-vim.keymap.set("n", "<leader>xx", "<cmd>TroubleToggle<cr>", { silent = true, noremap = true })
+vim.keymap.set("n", "<leader>xx", "<cmd>Trouble diagnostics<cr>", { silent = true, noremap = true })
 
 -- Rename inc
 vim.keymap.set("n", "<leader>rn", function()
