@@ -1,4 +1,2 @@
-require("hlappa")
-
--- Open nvim tree on startup
-vim.api.nvim_command("autocmd VimEnter * NvimTreeToggle")
+-- bootstrap lazy.nvim, LazyVim and your plugins
+require("config.lazy")
